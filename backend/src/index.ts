@@ -52,7 +52,7 @@ app.get(`/api/items/selected`, (req, res) => {
     total,
     offset,
     limit,
-    filter: filter || null
+    filter: filter || null,
   });
 });
 
@@ -98,6 +98,10 @@ app.post(`/api/items/add`, (req, res) => {
 
   if (!id || typeof id !== "number") {
     return res.status(400).json({ error: "Invalid ID" });
+  }
+
+  if (id < 0) {
+    return res.status(400).json({ error: "ID must be positive" });
   }
 
   storage.queueOperation("add", { id });

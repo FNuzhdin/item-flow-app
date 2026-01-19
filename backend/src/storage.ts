@@ -5,6 +5,11 @@ interface AppStorage {
   selectedItems: number[];
 }
 
+interface ItemsArrTotal {
+  items: number[];
+  total: number;
+}
+
 class DataStore {
   private storage: AppStorage;
   private queue: RequestQueue;
@@ -44,7 +49,7 @@ class DataStore {
 
   /**
    * Обработка read операций (select, deselect, reorder)
-   * @param operations Операции для обработки 
+   * @param operations Операции для обработки
    */
   private processReadOperations(operations: QueueOperation[]) {
     operations.forEach((op) => {
@@ -63,7 +68,7 @@ class DataStore {
   }
 
   /**
-   * Добавить операцию в очередь 
+   * Добавить операцию в очередь
    * @param type Тип операции
    * @param payload Данные
    */
@@ -73,13 +78,16 @@ class DataStore {
 
   /**
    * Добавляет элемент в выбранные элементы (selectedItems)
-   * @param id ID элемента 
+   * @param id ID элемента
    */
   private selectItem(id: number) {
-    if(this.storage.allItems.has(id) && !this.storage.selectedItems.includes(id)) {
-        this.storage.selectedItems.push(id);
+    if (
+      this.storage.allItems.has(id) &&
+      !this.storage.selectedItems.includes(id)
+    ) {
+      this.storage.selectedItems.push(id);
 
-        console.log(`Selected item: ${id}`);
+      console.log(`Selected item: ${id}`);
     }
   }
 
@@ -89,23 +97,97 @@ class DataStore {
    */
   private deselectItem(id: number) {
     const index = this.storage.selectedItems.indexOf(id);
-    if(index !== -1) {
-        this.storage.selectedItems.splice(index, 1);
-        console.log(`Deselected item: ${id}`);
+    if (index !== -1) {
+      this.storage.selectedItems.splice(index, 1);
+      console.log(`Deselected item: ${id}`);
     }
   }
 
-  
   /**
-   * Изменение последовательности элементов в правом окне 
-   * @param newOrder Последовательность элементов  
+   * Изменение последовательности элементов в правом окне
+   * @param newOrder Последовательность элементов
    */
   private reorderItems(newOrder: number[]) {
     // проверка, что все ID из newOrder существуют в selected
-    const validOrder = newOrder.filter(id => this.storage.selectedItems.includes(id));
+    const validOrder = newOrder.filter((id) =>
+      this.storage.selectedItems.includes(id),
+    );
     this.storage.selectedItems = validOrder;
 
     console.log(`Reordered items, new count: ${validOrder.length}`);
+  }
+
+  /**
+   * Функция фильтрации по частичному сопадению ID
+   * @param items Элементы для фильтрации
+   * @param filter Параметр фильтрации
+   * @returns Элементы после фильтрации
+   */
+  private filterItems(items: number[], filter?: string): number[] {
+    if (!filter || filter.trim() === "") {
+      return items;
+    }
+
+    const filterStr = filter.trim();
+    return items.filter((id) => id.toString().includes(filterStr));
+  }
+
+  /**
+   * Получить доступные (available) для выбора элементы после фильтрации и пагинации
+   * @param offset Смещение
+   * @param limit Ограничение на количество элементов
+   * @param filter Параметр фильтрации
+   * @returns Элементы после фильтрации и пагинации
+   */
+  getAvailableItemsPaginated(
+    offset: number = 0,
+    limit: number = 20,
+    filter?: string,
+  ): ItemsArrTotal {
+    const selectedSet = new Set(this.storage.selectedItems);
+
+    let availableItems = Array.from(this.storage.allItems).filter(
+      (id) => !selectedSet.has(id),
+    );
+
+    if (filter) {
+      availableItems = this.filterItems(availableItems, filter);
+    }
+
+    const total = availableItems.length;
+    const paginatedItems = availableItems.slice(offset, offset + limit);
+
+    return {
+      items: paginatedItems,
+      total,
+    };
+  }
+
+  /**
+   * Получить выбранные (selected) элементы после фильтрации и пагинации
+   * @param offset Смещение 
+   * @param limit Ограничение на количество элементов 
+   * @param filter Параметр фильтрации
+   * @returns Элементы после фильтрации и пагинации 
+   */
+  getSelectedItemsPaginated(
+    offset: number = 0,
+    limit: number = 20,
+    filter?: string,
+  ): ItemsArrTotal {
+    let selectedItems = [...this.storage.selectedItems];
+
+    if (filter) {
+      selectedItems = this.filterItems(selectedItems, filter);
+    }
+
+    const total = selectedItems.length;
+    const paginatedItems = selectedItems.slice(offset, offset + limit);
+
+    return {
+      items: paginatedItems,
+      total,
+    };
   }
 
   /**

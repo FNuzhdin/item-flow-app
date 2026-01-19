@@ -18,15 +18,20 @@ app.listen(PORT, () => {
 app.get("/api/items/available", (req, res) => {
   const offset = parseInt(req.query.offset as string) || 0;
   const limit = parseInt(req.query.limit as string) || 20;
+  const filter = req.query.filter as string | undefined;
 
-  const availableItems = storage.getAvailableItems();
-  const paginatedItems = availableItems.slice(offset, offset + limit);
-
-  res.json({
-    items: paginatedItems,
-    total: availableItems.length,
+  const { items, total } = storage.getAvailableItemsPaginated(
     offset,
     limit,
+    filter,
+  );
+
+  res.json({
+    items,
+    total,
+    offset,
+    limit,
+    filter: filter || null,
   });
 });
 
@@ -34,15 +39,20 @@ app.get("/api/items/available", (req, res) => {
 app.get(`/api/items/selected`, (req, res) => {
   const offset = parseInt(req.query.offset as string) || 0;
   const limit = parseInt(req.query.limit as string) || 20;
+  const filter = req.query.filter as string | undefined;
 
-  const selectedItems = storage.getSelectedItems();
-  const paginatedItems = selectedItems.slice(offset, offset + limit);
-
-  res.json({
-    items: paginatedItems,
-    total: selectedItems.length,
+  const { items, total } = storage.getSelectedItemsPaginated(
     offset,
     limit,
+    filter,
+  );
+
+  res.json({
+    items,
+    total,
+    offset,
+    limit,
+    filter: filter || null
   });
 });
 

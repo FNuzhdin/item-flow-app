@@ -1,35 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { ThemeToggle } from './components/ThemeToggle';
+import { LeftPanel } from './components/LeftPanel/LeftPanel';
+import { RightPanel } from './components/RightPanel/RightPanel';
+import { AddItemForm } from './components/AddItemForm/AddItemForm';
+import { api } from './services/api';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [leftPanelRefresh, setLeftPanelRefresh] = useState(0);
+  const [rightPanelRefresh, setRightPanelRefresh] = useState(0);
+
+  const handleItemSelect = async (id: number) => {
+    try {
+      await api.selectItem(id);
+      // Обновим правую панель после батчинга (1 сек)
+      setTimeout(() => setRightPanelRefresh(prev => prev + 1), 1100);
+    } catch (error) {
+      console.error('Failed to select item:', error);
+    }
+  };
+
+  const handleItemDeselect = async (id: number) => {
+    try {
+      await api.deselectItem(id);
+      // Обновим левую панель после батчинга (1 сек)
+      setTimeout(() => setLeftPanelRefresh(prev => prev + 1), 1100);
+    } catch (error) {
+      console.error('Failed to deselect item:', error);
+    }
+  };
+
+  const handleItemAdded = () => {
+    // Обновим левую панель после добавления нового элемента
+    setLeftPanelRefresh(prev => prev + 1);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Item Flow Manager
+          </h1>
+          <ThemeToggle />
+        </div>
+
+        {/* Форма добавления */}
+        <div className="mb-6">
+          <AddItemForm onItemAdded={handleItemAdded} />
+        </div>
+        
+        {/* Панели */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          <LeftPanel 
+            onItemSelect={handleItemSelect} 
+            refreshTrigger={leftPanelRefresh}
+          />
+          <RightPanel 
+            onItemDeselect={handleItemDeselect} 
+            refreshTrigger={rightPanelRefresh}
+          />
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

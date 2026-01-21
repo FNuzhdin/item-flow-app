@@ -107,3 +107,19 @@ app.post(`/api/items/add`, (req, res) => {
   storage.queueOperation("add", { id });
   res.json({ success: true, message: "Operation queued" });
 });
+
+// Получить состояние (для инициализации при загрузке)
+app.get(`/api/state`, (req, res) => {
+  const selectedItems = storage.getSelectedItems();
+  const totalAvailable = storage.getAvailableItems().length;
+  const totalItems = storage.getAllItems().length;
+
+  res.json({
+    selected: selectedItems,
+    totalSelected: selectedItems.length,
+    totalAvailable,
+    totalItems,
+  });
+});
+
+

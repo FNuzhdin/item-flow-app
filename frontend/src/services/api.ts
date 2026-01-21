@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ItemsResponse } from "../types";
+import type { AppState, ItemsResponse } from "../types";
 
 const API_BASE_URL = "/api";
 
@@ -56,10 +56,14 @@ export const api = {
     await axios.post(`${API_BASE_URL}/items/reorder`, { order });
   },
 
-  // Добавить новый элемент 
+  // Добавить новый элемент
   addItem: async (id: number): Promise<void> => {
     await axios.post(`${API_BASE_URL}/items/add`, { id });
   },
 
-
+  // получить состояние приложения (для сохраненния между обновлениями страницы)
+  getAppState: async (): Promise<AppState> => {
+    const response = await axios.get(`${API_BASE_URL}/state`);
+    return response.data;
+  },
 };

@@ -33,3 +33,11 @@ export interface LeftPanelProps {
   onItemSelect: (id: number) => void;
   refreshTrigger?: number
 }
+
+// состояние (для сохранения между обновлениями страницы)
+export interface AppState {
+  selected: number[],
+  totalSelected: number,
+  totalAvailable: number,
+  totalItems: number
+}

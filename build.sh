@@ -1,18 +1,20 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -e  # Остановиться при ошибке
 
-echo "Installing frontend dependencies..."
+echo "=== Installing frontend dependencies ==="
 cd frontend
-npm install
+npm ci --include=dev
 
-echo "Building frontend..."
+echo "=== Building frontend ==="
 npm run build
 
-echo "Installing backend dependencies..."
-cd ../backend
-npm install
+echo "=== Copying frontend to backend ==="
+cd ..
+mkdir -p backend/public
+cp -r frontend/dist/* backend/public/
 
-echo "Building backend..."
-npm run build
+echo "=== Installing backend dependencies ==="
+cd backend
+npm ci --only=production
 
-echo "Build complete!"
+echo "=== Build complete ==="

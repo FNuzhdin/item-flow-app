@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { ThemeToggle } from './components/ThemeToggle';
-import { LeftPanel } from './components/LeftPanel/LeftPanel';
-import { RightPanel } from './components/RightPanel/RightPanel';
-import { AddItemForm } from './components/AddItemForm/AddItemForm';
-import { api } from './services/api';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { LeftPanel } from "./components/LeftPanel/LeftPanel";
+import { RightPanel } from "./components/RightPanel/RightPanel";
+import { AddItemForm } from "./components/AddItemForm/AddItemForm";
+import { api } from "./services/api";
+import { Loader2 } from "lucide-react";
+import { Footer } from "./components/Footer";
 
 function App() {
   const [leftPanelRefresh, setLeftPanelRefresh] = useState(0);
@@ -16,21 +17,24 @@ function App() {
     totalItems: number;
   } | null>(null);
 
-  // Загрузка состояния при первом рендере
+  // Функция для загрузки/обновления статистики
+  const loadAppState = async () => {
+    try {
+      const state = await api.getAppState();
+      setAppState({
+        totalSelected: state.totalSelected,
+        totalAvailable: state.totalAvailable,
+        totalItems: state.totalItems,
+      });
+    } catch (error) {
+      console.error("Failed to load app state:", error);
+    }
+  };
+
   useEffect(() => {
     const loadInitialState = async () => {
-      try {
-        const state = await api.getAppState();
-        setAppState({
-          totalSelected: state.totalSelected,
-          totalAvailable: state.totalAvailable,
-          totalItems: state.totalItems,
-        });
-      } catch (error) {
-        console.error('Failed to load initial state:', error);
-      } finally {
-        setIsInitializing(false);
-      }
+      await loadAppState();
+      setIsInitializing(false);
     };
 
     loadInitialState();
@@ -39,26 +43,32 @@ function App() {
   const handleItemSelect = async (id: number) => {
     try {
       await api.selectItem(id);
-      setTimeout(() => setRightPanelRefresh(prev => prev + 1), 1100);
+      setTimeout(() => {
+        setRightPanelRefresh((prev) => prev + 1);
+        loadAppState(); // Обновляем статистику
+      }, 1100);
     } catch (error) {
-      console.error('Failed to select item:', error);
+      console.error("Failed to select item:", error);
     }
   };
 
   const handleItemDeselect = async (id: number) => {
     try {
       await api.deselectItem(id);
-      setTimeout(() => setLeftPanelRefresh(prev => prev + 1), 1100);
+      setTimeout(() => {
+        setLeftPanelRefresh((prev) => prev + 1);
+        loadAppState(); // Обновляем статистику
+      }, 1100);
     } catch (error) {
-      console.error('Failed to deselect item:', error);
+      console.error("Failed to deselect item:", error);
     }
   };
 
   const handleItemAdded = () => {
-    setLeftPanelRefresh(prev => prev + 1);
+    setLeftPanelRefresh((prev) => prev + 1);
+    loadAppState(); // Обновляем статистику после добавления
   };
 
-  // Показываем загрузку пока инициализируемся
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -72,10 +82,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto" style={{ maxWidth: "1400px" }}>
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl md:text-3xl font-bold">
-            Item Flow Manager
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+              Item Flow Manager
+            </span>
           </h1>
           <ThemeToggle />
         </div>
@@ -85,15 +97,21 @@ function App() {
           <div className="mb-6 grid grid-cols-3 gap-4">
             <div className="p-3 border rounded-lg bg-card">
               <div className="text-sm text-muted-foreground">Total Items</div>
-              <div className="text-2xl font-bold">{appState.totalItems.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                {appState.totalItems.toLocaleString()}
+              </div>
             </div>
             <div className="p-3 border rounded-lg bg-card">
               <div className="text-sm text-muted-foreground">Available</div>
-              <div className="text-2xl font-bold">{appState.totalAvailable.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                {appState.totalAvailable.toLocaleString()}
+              </div>
             </div>
             <div className="p-3 border rounded-lg bg-card">
               <div className="text-sm text-muted-foreground">Selected</div>
-              <div className="text-2xl font-bold">{appState.totalSelected.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                {appState.totalSelected.toLocaleString()}
+              </div>
             </div>
           </div>
         )}
@@ -102,19 +120,21 @@ function App() {
         <div className="mb-6">
           <AddItemForm onItemAdded={handleItemAdded} />
         </div>
-        
+
         {/* Панели */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          <LeftPanel 
-            onItemSelect={handleItemSelect} 
+          <LeftPanel
+            onItemSelect={handleItemSelect}
             refreshTrigger={leftPanelRefresh}
           />
-          <RightPanel 
-            onItemDeselect={handleItemDeselect} 
+          <RightPanel
+            onItemDeselect={handleItemDeselect}
             refreshTrigger={rightPanelRefresh}
           />
         </div>
       </div>
+
+      <Footer/>
     </div>
   );
 }

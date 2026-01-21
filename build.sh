@@ -15,7 +15,8 @@ cp -r frontend/dist/* backend/public/
 
 echo "=== Installing backend dependencies ==="
 cd backend
-npm ci  # ← Просто npm ci, без флагов!
+rm -rf node_modules  # ← Добавь это
+npm install  # ← Измени на npm install (не npm ci)
 
 echo "=== Building backend ==="
 npm run build

@@ -63,12 +63,12 @@ export const AddItemForm = ({ onItemAdded }: AddItemFormProps) => {
             min="1"
             className="flex-1"
           />
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} variant="default" className='text-white'>
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <Plus className="h-4 w-4 mr-1" />
+                <Plus className="h-4 w-4 mr-1 text-white" />
                 Add
               </>
             )}

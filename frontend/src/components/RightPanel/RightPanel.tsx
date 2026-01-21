@@ -67,7 +67,12 @@ const SortableItem = ({ id, onDeselect }: SortableItemProps) => {
         </div>
         <span className="font-mono">ID: {id}</span>
       </div>
-      <Button size="sm" variant="outline" onClick={() => onDeselect(id)}>
+      <Button
+        size="sm"
+        variant="outline"
+        className="border-yellow-600 text-yellow-600 hover:bg-yellow-600 hover:text-white dark:border-yellow-500 dark:text-yellow-500 dark:hover:bg-yellow-500"
+        onClick={() => onDeselect(id)}
+      >
         <X className="h-4 w-4 mr-1" />
         Remove
       </Button>

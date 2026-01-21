@@ -124,12 +124,12 @@ app.get("/api/state", (req, res) => {
 
 // В ПРОДАКШЕНЕ раздаём статику frontend
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  const frontendPath = path.join(__dirname, '../public'); 
   
   app.use(express.static(frontendPath));
   
   // Все НЕ-API запросы отдают index.html
-  app.get(/^(?!\/api).*/, (req, res) => {  // ✅ Правильно
+  app.get(/^(?!\/api).*/, (req, res) => {  
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }

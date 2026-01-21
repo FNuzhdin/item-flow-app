@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e  # Остановиться при ошибке
+set -e
 
 echo "=== Installing frontend dependencies ==="
 cd frontend
@@ -15,6 +15,9 @@ cp -r frontend/dist/* backend/public/
 
 echo "=== Installing backend dependencies ==="
 cd backend
-npm ci --only=production
+npm ci  # Убрал --only=production, нужны dev-зависимости для сборки!
+
+echo "=== Building backend ==="
+npm run build  # ← ЭТО КРИТИЧНО! Компилирует TS в JS
 
 echo "=== Build complete ==="

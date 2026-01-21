@@ -15,9 +15,9 @@ cp -r frontend/dist/* backend/public/
 
 echo "=== Installing backend dependencies ==="
 cd backend
-npm ci  # Убрал --only=production, нужны dev-зависимости для сборки!
+npm ci  # ← Просто npm ci, без флагов!
 
 echo "=== Building backend ==="
-npm run build  # ← ЭТО КРИТИЧНО! Компилирует TS в JS
+npm run build
 
 echo "=== Build complete ==="

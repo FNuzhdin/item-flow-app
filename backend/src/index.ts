@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from 'path';
 import { storage } from "./storage";
 
 dotenv.config();
@@ -10,9 +11,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+
 
 // получить доступные элементы (для левого окна)
 app.get("/api/items/available", (req, res) => {
@@ -36,7 +36,7 @@ app.get("/api/items/available", (req, res) => {
 });
 
 // получить выбранные элементы (для правого окна)
-app.get(`/api/items/selected`, (req, res) => {
+app.get("/api/items/selected", (req, res) => {
   const offset = parseInt(req.query.offset as string) || 0;
   const limit = parseInt(req.query.limit as string) || 20;
   const filter = req.query.filter as string | undefined;
@@ -57,7 +57,7 @@ app.get(`/api/items/selected`, (req, res) => {
 });
 
 // добавить элемент в выбранные
-app.post(`/api/items/select`, (req, res) => {
+app.post("/api/items/select", (req, res) => {
   const { id } = req.body;
 
   if (!id || typeof id !== "number") {
@@ -69,7 +69,7 @@ app.post(`/api/items/select`, (req, res) => {
 });
 
 // удалить элемент из выбранных
-app.post(`/api/items/deselect`, (req, res) => {
+app.post("/api/items/deselect", (req, res) => {
   const { id } = req.body;
 
   if (!id || typeof id !== "number") {
@@ -81,7 +81,7 @@ app.post(`/api/items/deselect`, (req, res) => {
 });
 
 // перегруппировать элементы
-app.post(`/api/items/reorder`, (req, res) => {
+app.post("/api/items/reorder", (req, res) => {
   const { order } = req.body;
 
   if (!Array.isArray(order)) {
@@ -93,7 +93,7 @@ app.post(`/api/items/reorder`, (req, res) => {
 });
 
 // добавить новый элемент
-app.post(`/api/items/add`, (req, res) => {
+app.post("/api/items/add", (req, res) => {
   const { id } = req.body;
 
   if (!id || typeof id !== "number") {
@@ -109,7 +109,7 @@ app.post(`/api/items/add`, (req, res) => {
 });
 
 // Получить состояние (для инициализации при загрузке)
-app.get(`/api/state`, (req, res) => {
+app.get("/api/state", (req, res) => {
   const selectedItems = storage.getSelectedItems();
   const totalAvailable = storage.getAvailableItems().length;
   const totalItems = storage.getAllItems().length;
@@ -122,4 +122,18 @@ app.get(`/api/state`, (req, res) => {
   });
 });
 
+// В ПРОДАКШЕНЕ раздаём статику frontend
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  
+  app.use(express.static(frontendPath));
+  
+  // Все НЕ-API запросы отдают index.html
+  app.get(/^(?!\/api).*/, (req, res) => {  // ✅ Правильно
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

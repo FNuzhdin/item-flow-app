@@ -15,7 +15,7 @@ cp -r frontend/dist/* backend/public/
 
 echo "=== Installing backend dependencies ==="
 cd backend
-npm ci 
+npm install
 
 echo "=== Building backend ==="
 npm run build

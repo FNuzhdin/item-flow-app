@@ -17,4 +17,7 @@ echo "=== Installing backend dependencies ==="
 cd backend
 npm ci --only=production
 
+echo "=== Building backend ==="
+npm run build
+
 echo "=== Build complete ==="

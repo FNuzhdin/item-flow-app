@@ -3,7 +3,7 @@ set -e  # Остановиться при ошибке
 
 echo "=== Installing frontend dependencies ==="
 cd frontend
-npm ci --include=dev
+npm ci
 
 echo "=== Building frontend ==="
 npm run build
@@ -15,7 +15,7 @@ cp -r frontend/dist/* backend/public/
 
 echo "=== Installing backend dependencies ==="
 cd backend
-npm ci --only=production
+npm ci 
 
 echo "=== Building backend ==="
 npm run build

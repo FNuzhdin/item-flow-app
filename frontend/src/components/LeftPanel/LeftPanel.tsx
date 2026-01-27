@@ -105,7 +105,13 @@ export const LeftPanel = ({ onItemSelect, refreshTrigger }: LeftPanelProps) => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-green-600 text-white hover:bg-green-600 hover:text-white dark:border-green-500 dark:text-white dark:hover:bg-green-500"
+                  className="
+    !bg-black 
+    !text-white 
+    !border-black
+    !hover:bg-gray-800 
+    !hover:border-gray-800
+  "
                   onClick={() => handleSelect(id)}
                 >
                   <Plus className="h-4 w-4 mr-1" />

@@ -83,7 +83,13 @@ export const AddItemForm = ({ onItemAdded }: AddItemFormProps) => {
             type="submit"
             disabled={loading}
             variant="default"
-            className="text-white"
+            className="
+    !bg-black 
+    !text-white 
+    !border-black
+    !hover:bg-gray-800 
+    !hover:border-gray-800
+  "
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

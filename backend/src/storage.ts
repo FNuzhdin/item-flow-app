@@ -118,18 +118,25 @@ class DataStore {
   }
 
   /**
-   * Функция фильтрации по частичному сопадению ID
+   * Функция фильтрации по ID
    * @param items Элементы для фильтрации
+   * @param exactMatch Нужно точное совпадение или частичное
    * @param filter Параметр фильтрации
    * @returns Элементы после фильтрации
    */
-  private filterItems(items: number[], filter?: string): number[] {
+  private filterItems(
+    items: number[],
+    exactMatch: boolean,
+    filter?: string,
+  ): number[] {
     if (!filter || filter.trim() === "") {
       return items;
     }
 
     const filterStr = filter.trim();
-    return items.filter((id) => id.toString().includes(filterStr));
+    return exactMatch
+      ? items.filter((id) => id.toString() === filterStr)
+      : items.filter((id) => id.toString().includes(filterStr));
   }
 
   /**
@@ -151,7 +158,7 @@ class DataStore {
     );
 
     if (filter) {
-      availableItems = this.filterItems(availableItems, filter);
+      availableItems = this.filterItems(availableItems, true, filter);
     }
 
     const total = availableItems.length;
@@ -165,10 +172,10 @@ class DataStore {
 
   /**
    * Получить выбранные (selected) элементы после фильтрации и пагинации
-   * @param offset Смещение 
-   * @param limit Ограничение на количество элементов 
+   * @param offset Смещение
+   * @param limit Ограничение на количество элементов
    * @param filter Параметр фильтрации
-   * @returns Элементы после фильтрации и пагинации 
+   * @returns Элементы после фильтрации и пагинации
    */
   getSelectedItemsPaginated(
     offset: number = 0,
@@ -178,7 +185,7 @@ class DataStore {
     let selectedItems = [...this.storage.selectedItems];
 
     if (filter) {
-      selectedItems = this.filterItems(selectedItems, filter);
+      selectedItems = this.filterItems(selectedItems, false, filter);
     }
 
     const total = selectedItems.length;
